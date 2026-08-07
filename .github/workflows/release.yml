@@ -66,12 +66,6 @@ jobs:
       - name: Install app deps
         run: |
           npm ci
-          # Windows 上 npm 有跨平台 lockfile 的 optional deps 解析 bug
-          # （npm/cli#4828），不会自动装 @rollup/rollup-win32-x64-msvc，
-          # 这里显式补装（Windows x64 平台匹配，不会报 notsup）。
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            npm install --no-save @rollup/rollup-win32-x64-msvc@4.62.4
-          fi
 
       # ---------- 构建 + 打包 ----------
       - name: Build and package
