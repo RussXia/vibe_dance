@@ -1,0 +1,26 @@
+engine/engine/render.py
+  s_d27bc67c85c51a::t_1b7024639dfb74 8-9
+  s_d27bc67c85c51a::t_7871f90ba7d885 80-81,83
+engine/engine/ffmpeg.py
+  s_d27bc67c85c51a::t_7cdafaae7fbad4 1-47
+engine/tests/test_ffmpeg.py
+  s_d27bc67c85c51a::t_a4f422546888e9 1-5,7-46,48-49
+  s_d27bc67c85c51a::t_996252d864767c 6
+  s_d27bc67c85c51a::t_0a6ebd9689146c 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "70a9b02fbdc00be25664ade39fb49d82c5b9d684",
+  "prompts": {},
+  "sessions": {
+    "s_d27bc67c85c51a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0f45bfcd-43b4-4fd0-8c4a-3ff10165a509",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
