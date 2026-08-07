@@ -1,0 +1,19 @@
+README.md
+  s_d27bc67c85c51a::t_29851f4caaf140 27-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "575116f490132006cac4174cce3181631698b006",
+  "prompts": {},
+  "sessions": {
+    "s_d27bc67c85c51a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0f45bfcd-43b4-4fd0-8c4a-3ff10165a509",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
