@@ -5,6 +5,8 @@ import subprocess
 
 import cv2
 
+from .ffmpeg import find_ffmpeg
+
 
 class Renderer:
     """按固定输出框把视频裁剪为输出分辨率，用 FFmpeg 编码为 H.264 MP4。
@@ -75,8 +77,10 @@ class Renderer:
 
         # rawvideo 管道：逐帧写 BGR 原始帧给 FFmpeg，编码为 H.264 MP4。
         # 同时把原视频作为第二输入，-map 复制其音轨（时长与视频一致，直接 copy 无需重编码）。
+        # ffmpeg 用绝对路径：Finder 双击启动的 App 继承最小 PATH，不含 Homebrew 目录。
+        ffmpeg = find_ffmpeg()
         cmd = [
-            "ffmpeg", "-y",
+            ffmpeg, "-y",
             "-f", "rawvideo",
             "-pix_fmt", "bgr24",
             "-s", f"{out_w}x{out_h}",
