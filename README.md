@@ -24,6 +24,37 @@
 
 详见 `docs/superpowers/specs/2026-08-07-dance-video-editor-design.md`。
 
+## 安装发行版
+
+从 [GitHub Releases](https://github.com/RussXia/vibe_dance/releases) 下载安装包：
+
+- macOS：`VibeDance-*.dmg`（Apple Silicon）
+- Windows：`VibeDance.Setup.*.exe`
+
+### macOS：首次打开提示「已损坏，无法打开」
+
+安装包是**未签名**的（CI 未配置 Apple 开发者签名/公证），macOS 的 Gatekeeper 会对从网上下载的未签名 App 弹「已损坏」。**文件本身没坏**，是签名校验被拦。
+
+**解决办法（任选其一）：**
+
+1. **右键打开**：在 Finder 中右键点击 `VibeDance.app` → 选「打开」→ 在弹窗中再点「打开」。（双击可能不弹，需用右键）
+2. **清除隔离属性**（推荐，最稳定）：
+
+```bash
+xattr -cr /Applications/VibeDance.app
+```
+
+3. **终端手动启动**（临时）：
+```bash
+/Applications/VibeDance.app/Contents/MacOS/VibeDance
+```
+
+> 系统偏好设置 → 隐私与安全性 → 「仍要打开」也可以。要彻底去掉这个提示（用户开箱即用），需要 Apple 开发者账号对 App 做签名 + 公证，见「发布」章节。
+
+### Windows：SmartScreen 提示「未知发布者」
+
+同理，安装包未签名，Windows SmartScreen 可能提示「Windows 已保护你的电脑」。点「更多信息」→「仍要运行」即可。
+
 ## 运行桌面客户端
 
 ```bash
