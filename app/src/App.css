@@ -1,0 +1,330 @@
+/* Vibe Dance Editor 全局样式（深色专业主题） */
+:root {
+  --bg: #0b0e14;
+  --bg-elevated: #141824;
+  --bg-card: #1a1f2e;
+  --bg-hover: #232a3c;
+  --border: #2c3347;
+  --border-strong: #3a4158;
+  --text: #e8eaf1;
+  --text-dim: #8f97ab;
+  --text-faint: #5a6274;
+  --accent: #6ea8ff;
+  --accent-hover: #8bbcff;
+  --accent-soft: rgba(110, 168, 255, 0.12);
+  --success: #4cd07a;
+  --danger: #ff6b6b;
+  --radius: 10px;
+  --radius-sm: 7px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(110, 168, 255, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, rgba(76, 208, 122, 0.05), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ---------- 布局：左预览 + 右控制 ---------- */
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #4a7dd6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0b0e14;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.app-subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ---------- 预览区 ---------- */
+.preview-card {
+  padding: 16px;
+  position: sticky;
+  top: 20px;
+}
+
+.preview-stage {
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+/* ---------- 控制区 ---------- */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  background: var(--accent);
+  color: #0b0e14;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 10px rgba(110, 168, 255, 0.25);
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px rgba(110, 168, 255, 0.35);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-block {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+/* ---------- 状态 ---------- */
+.status {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.status.ok {
+  color: var(--success);
+  font-weight: 500;
+}
+
+.status.err {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.status-empty {
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.video-path {
+  font-size: 12px;
+  color: var(--text-faint);
+  word-break: break-all;
+  line-height: 1.5;
+  background: var(--bg-elevated);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-top: 10px;
+}
+
+/* ---------- 进度条 ---------- */
+.progress-wrap {
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #7f5bff);
+  border-radius: 4px;
+  transition: width 0.25s ease;
+}
+
+/* ---------- 输出尺寸选择器 ---------- */
+.size-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.size-preset {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.size-preset:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.size-preset.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.size-custom {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.size-custom input {
+  width: 70px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 7px 9px;
+  font-size: 13px;
+  transition: border-color 0.15s ease;
+}
+
+.size-custom input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.size-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 8px;
+}
+
+/* ---------- 导出结果 ---------- */
+.export-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
+}

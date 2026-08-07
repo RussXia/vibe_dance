@@ -1,0 +1,7 @@
+{
+  "name": "vibe-dance",
+  "private": true,
+  "version": "0.1.0",
+  "description": "视频剪辑软件：多人视频中框选目标人物，自动跟踪并裁剪输出",
+  "workspaces": ["app"]
+}

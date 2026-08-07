@@ -1,0 +1,65 @@
+# ---------- Node / npm ----------
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+.mypy_cache/
+.ruff_cache/
+.pytype/
+engine/.pytest_cache/
+engine/.venv/
+engine/.venv_old/
+
+# 保留 app/build/（应用图标等打包资源，需提交）
+!app/build/
+
+# ---------- Electron / electron-builder ----------
+app/dist/
+app/dist-electron/
+app/release/
+app/out/
+
+# ---------- 项目运行时产物 ----------
+output/
+
+# ---------- macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ---------- 环境变量 / 敏感 ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------- Claude Code 工作目录（本地专用，不提交） ----------
+.claude/
+.superpowers/
+
+# # ---------- YOLO 模型权重（大文件，随包分发不提交） ----------
+# engine/yolov8n.pt
+# yolov8n.pt

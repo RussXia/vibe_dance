@@ -1,0 +1,25 @@
+# electron-builder 打包配置
+# 引擎打包策略：用 PyInstaller 把引擎冻结成独立二进制（engine/dist/engine_bundle/），
+# 随安装包分发，Electron spawn 该二进制（见 main.ts startEngine）。
+# 不依赖目标机 Python，体积小且可移植。
+appId: com.vibedance.editor
+productName: VibeDance
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**
+  - dist-electron/**
+mac:
+  target:
+    - dmg
+  icon: build/icon.icns
+win:
+  target:
+    - nsis
+  icon: build/icon.ico
+# 随安装包分发 PyInstaller 冻结的引擎二进制：
+#   资源目录 = Resources/engine_bundle（macOS）/ resources/engine_bundle（Windows）
+extraResources:
+  - from: ../engine/dist/engine_bundle
+    to: engine_bundle

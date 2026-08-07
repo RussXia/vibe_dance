@@ -1,0 +1,109 @@
+name: Release
+
+# 打 tag v* 时自动构建 macOS + Windows 安装包并发布为 GitHub Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: macos
+          - os: windows-latest
+            artifact: windows
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- Node.js + npm ----------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # ---------- Python 3.13 ----------
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # ---------- 引擎 venv + 依赖（opencv-contrib / ultralytics / torch） ----------
+      - name: Create engine venv
+        shell: bash
+        run: |
+          cd engine
+          python3 -m venv .venv
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv/Scripts/activate
+          else
+            . .venv/bin/activate
+          fi
+          python -m pip install --upgrade pip
+          pip install -e .
+        env:
+          PIP_DISABLE_PIP_VERSION_CHECK: '1'
+
+      # ---------- PyInstaller 冻结引擎为独立二进制 ----------
+      - name: Freeze engine with PyInstaller
+        shell: bash
+        run: |
+          cd engine
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            .venv/Scripts/activate
+          else
+            . .venv/bin/activate
+          fi
+          pip install pyinstaller
+          pyinstaller engine.spec --distpath dist --workpath build --noconfirm
+
+      # ---------- 前端依赖（npm workspace：install 必须在仓库根，依赖 hoist 到根 node_modules）----------
+      - name: Install app deps
+        run: |
+          npm ci
+
+      # ---------- 构建 + 打包 ----------
+      - name: Build and package
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'   # 不做代码签名
+        run: |
+          cd app
+          npm run build
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            npx electron-builder --win --publish never
+          else
+            npx electron-builder --mac --publish never
+          fi
+        shell: bash
+
+      # ---------- 收集产物 ----------
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.artifact }}
+          path: |
+            app/release/*.dmg
+            app/release/*.exe
+          if-no-files-found: error
+
+  # ---------- 发布 GitHub Release ----------
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: installers/**
+          generate_release_notes: true
