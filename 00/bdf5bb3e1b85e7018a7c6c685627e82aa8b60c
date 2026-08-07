@@ -1,0 +1,19 @@
+app/electron/main.ts
+  s_d27bc67c85c51a::t_854d4e62a9aef8 134-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "00bdf5bb3e1b85e7018a7c6c685627e82aa8b60c",
+  "prompts": {},
+  "sessions": {
+    "s_d27bc67c85c51a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0f45bfcd-43b4-4fd0-8c4a-3ff10165a509",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
