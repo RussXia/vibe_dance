@@ -131,3 +131,14 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+// app 真正退出前杀掉引擎子进程，避免其成为孤儿进程
+//（孤儿引擎会一直占用 8787 端口，且让已卸载 app 的进程/图标残留）。
+// will-quit 在 Cmd+Q（macOS）与 window-all-closed->quit（Windows/Linux）
+// 两条退出路径都会触发，统一在此清理。
+app.on('will-quit', () => {
+  if (engineProc) {
+    engineProc.kill();
+    engineProc = null;
+  }
+});
