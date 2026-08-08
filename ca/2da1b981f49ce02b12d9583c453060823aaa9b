@@ -1,0 +1,23 @@
+app/electron/main.ts
+  s_babc8e026502c3::t_e8abb421e10005 89-129
+app/electron/preload.ts
+  s_babc8e026502c3::t_5c5151095c6a35 5-6,11-13
+app/src/vite-env.d.ts
+  s_babc8e026502c3::t_6b9e4766e64cdc 3-26,30-31,36-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "ca2da1b981f49ce02b12d9583c453060823aaa9b",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
