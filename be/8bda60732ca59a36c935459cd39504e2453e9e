@@ -1,0 +1,23 @@
+engine/tests/test_tracker.py
+  s_d27bc67c85c51a::t_52f73037bdb616 92-161
+engine/engine/tracker.py
+  s_d27bc67c85c51a::t_6e127d27745c28 54-58
+  s_d27bc67c85c51a::t_ba7729029cc49c 99-103,105,112-115
+  s_d27bc67c85c51a::t_25925804c1e9f5 160-185,187-192,195,201-228,235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "be8bda60732ca59a36c935459cd39504e2453e9e",
+  "prompts": {},
+  "sessions": {
+    "s_d27bc67c85c51a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0f45bfcd-43b4-4fd0-8c4a-3ff10165a509",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
