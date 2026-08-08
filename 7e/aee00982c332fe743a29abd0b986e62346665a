@@ -1,0 +1,20 @@
+docs/superpowers/specs/2026-08-08-audio-swap-design.md
+  s_babc8e026502c3::t_4e08f6fc773b02 1-88,90-92,97-164
+  s_babc8e026502c3::t_3e56ed26a8bb27 89,93-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "7eaee00982c332fe743a29abd0b986e62346665a",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
