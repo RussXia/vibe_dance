@@ -1,0 +1,21 @@
+engine/engine/audiotask.py
+  s_babc8e026502c3::t_53d02dd2dad126 104-111,122-124
+  s_babc8e026502c3::t_211de43c45fefb 172-175,183
+  s_babc8e026502c3::t_a1d1766ef4b6b8 220-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "1d90e9ed6e85523e316faa4ee5369aa3f0e63712",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
