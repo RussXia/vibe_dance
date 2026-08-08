@@ -1,0 +1,24 @@
+app/src/AudioSwap.tsx
+  s_babc8e026502c3::t_6476d06db90b28 1,26,28-39
+  s_babc8e026502c3::t_0ddaeb688d3c68 111
+  s_babc8e026502c3::t_1971dcf513bce2 82-87,92
+  s_babc8e026502c3::t_b968543dceba2e 68
+  s_babc8e026502c3::t_683ee464eab546 41,44,46
+  s_babc8e026502c3::t_098d2cedd1980c 159-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "468e791d597b6efd71cf1f24e28de1cb91184d63",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
