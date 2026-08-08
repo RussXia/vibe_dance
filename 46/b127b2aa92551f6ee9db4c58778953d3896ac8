@@ -1,0 +1,19 @@
+docs/superpowers/plans/2026-08-08-audio-swap.md
+  s_babc8e026502c3::t_67f138fd72118f 1-2117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "46b127b2aa92551f6ee9db4c58778953d3896ac8",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
