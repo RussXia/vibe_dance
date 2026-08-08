@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { AudioPreview } from './vite-env';
 
 const METHOD_LABEL: Record<string, string> = { dtw: '精确对齐', beat: '节拍对齐', zero: '从头铺设' };
 

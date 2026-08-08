@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import VideoPreview, { ViewportBox } from './VideoPreview';
 import OutputSizeSelector from './OutputSizeSelector';
+import AudioSwap from './AudioSwap';
 import './App.css';
 
 export default function App() {
@@ -174,6 +175,8 @@ export default function App() {
               </div>
             </div>
           )}
+
+          <AudioSwap />
         </div>
       </div>
     </div>

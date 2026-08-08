@@ -360,3 +360,14 @@ body {
   border-radius: 4px;
   font-size: 12px;
 }
+
+/* ---------- 替换音轨 ---------- */
+.audio-swap {
+  margin-top: 16px;
+}
+.audio-swap-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
