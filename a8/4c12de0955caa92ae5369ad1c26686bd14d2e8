@@ -1,0 +1,21 @@
+engine/engine/align.py
+  s_babc8e026502c3::t_499bcdbd57b1b8 128,132
+  s_babc8e026502c3::t_de694f81b319b9 129
+  s_babc8e026502c3::t_c7fbe5571f2c44 130,136-138,141-142,145-146,148-168
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "a84c12de0955caa92ae5369ad1c26686bd14d2e8",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
