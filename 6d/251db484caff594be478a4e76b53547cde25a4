@@ -1,0 +1,23 @@
+engine/tests/test_server.py
+  s_babc8e026502c3::t_6a8bff4ebeb0dd 70-121
+engine/engine/server.py
+  s_babc8e026502c3::t_60f1a67826c457 8,13
+  s_babc8e026502c3::t_a4f355413eee42 42-49
+  s_babc8e026502c3::t_c681a56183bad8 69-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "6d251db484caff594be478a4e76b53547cde25a4",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
