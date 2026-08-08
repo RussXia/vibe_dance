@@ -1,0 +1,25 @@
+engine/tests/test_align.py
+  s_babc8e026502c3::t_69dc8ee24046c7 61-66,69-74
+  s_babc8e026502c3::t_0bddbe77303b4b 91-95,98-100,102
+engine/engine/align.py
+  s_babc8e026502c3::t_67ecdbc51c159c 140,142,145-146,149
+  s_babc8e026502c3::t_e4868474248de5 225-226,229,237-239
+  s_babc8e026502c3::t_c9769e3515f339 268-272,275
+  s_babc8e026502c3::t_78e6fc0756eb77 130-131,133,135,137-139,141,161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "a17f1b4f61cdbe80a222287af21409c0653a7013",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
