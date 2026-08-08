@@ -1,0 +1,19 @@
+engine/pyproject.toml
+  s_babc8e026502c3::t_cf5638f828c417 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "07d34c745c9b62990f5d9bf40c1df23310125bb2",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
