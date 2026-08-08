@@ -133,6 +133,10 @@ describe('AudioSwap', () => {
     expect(screen.getByTestId('waveform-editor')).toBeTruthy();
     expect(screen.getByRole('button', { name: /播放/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /下载/ })).toBeTruthy();
+    // 视频预览：素材A 视频渲染在预览区
+    const video = screen.getByTestId('audio-preview-video') as HTMLVideoElement;
+    expect(video).toBeTruthy();
+    expect(video.src).toContain('/tmp/a.mp4');
   });
 
   it('低置信度时提示手动微调', async () => {
@@ -214,6 +218,11 @@ describe('AudioSwap', () => {
     });
 
     expect(api.saveVideo).toHaveBeenCalled();
+    // 关键：renderAudioTask 必须收到用户选的 output_path（修复导出失败的根因）
+    expect(api.renderAudioTask).toHaveBeenCalledWith('at1', {
+      offset_seconds: 2,
+      output_path: '/tmp/out.mp4',
+    });
     expect(screen.getByRole('button', { name: /打开所在文件夹/ })).toBeTruthy();
   });
 });

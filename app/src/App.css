@@ -133,6 +133,15 @@ body {
   margin-top: 0;
 }
 
+/* ---------- 替换音轨：视频预览 ---------- */
+.audio-preview-stage {
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;

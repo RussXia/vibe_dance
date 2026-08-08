@@ -90,8 +90,15 @@ export default function AudioSwap() {
     if (!p) return;
     // 停止上次
     stopPlayback();
-    // A 视频（静音，纯画面） + A/B 音频按 offset 同步
-    // B 音频延迟 offset 秒开始（offset 秒后启动 B）
+    // 素材A 视频（静音，纯画面）+ A/B 音频按 offset 同步
+    // 声音走 Web Audio：A 音频立即播放，B 音频延迟 offset 秒启动
+    const video = videoARef.current;
+    if (video) {
+      video.currentTime = 0;
+      void video.play().catch(() => {
+        /* 视频加载失败不影响音频试听 */
+      });
+    }
     audioARef.current = new Audio('file://' + p.audio_a_path);
     audioBRef.current = new Audio('file://' + p.audio_b_path);
     const delayMs = Math.max(0, offset * 1000);
@@ -106,7 +113,10 @@ export default function AudioSwap() {
     setPhase('rendering');
     setProgress(0);
     try {
-      await window.api.renderAudioTask(taskId, { offset_seconds: offset });
+      await window.api.renderAudioTask(taskId, {
+        offset_seconds: offset,
+        output_path: save.path,
+      });
       const st = await poll(taskId, ['DONE', 'FAILED', 'CANCELLED']);
       if (!st) return;
       if (st.status === 'DONE') {
@@ -146,6 +156,18 @@ export default function AudioSwap() {
               {CONFIDENCE_HINT.low}（当前: {METHOD_LABEL[ar.method] || ar.method}）
             </div>
           )}
+          {/* 预览：素材A 视频（静音）+ 替换后音频混音 */}
+          <div className="audio-preview-stage">
+            <video
+              ref={videoARef}
+              data-testid="audio-preview-video"
+              src={p.video_a_path}
+              muted
+              loop
+              playsInline
+              style={{ width: '100%', display: 'block', background: '#000', borderRadius: 'var(--radius-sm)' }}
+            />
+          </div>
           <WaveformEditor
             preview={p}
             initialOffset={offset}

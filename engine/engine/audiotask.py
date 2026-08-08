@@ -95,8 +95,16 @@ class AudioTaskManager:
             t.status = "CANCELLED"
             return True
 
-    def render(self, task_id, offset_seconds, tempo_ratio=None):
-        """用调整后的 offset 触发混流导出（复用任务线程，不新建任务）。"""
+    def render(self, task_id, offset_seconds, tempo_ratio=None, output_path=None):
+        """用调整后的 offset 触发混流导出（复用任务线程，不新建任务）。
+
+        Args:
+            task_id: 任务 ID。
+            offset_seconds: B 起点在 A 中的偏移（秒）。
+            tempo_ratio: 可选，覆盖自动对齐的变速比。
+            output_path: 可选，覆盖 submit 时传入的输出路径。前端在下载
+                对话框选好路径后传入；否则用 submit 时的 output_path。
+        """
         with self._lock:
             t = self._tasks.get(task_id)
             if t is None:
@@ -113,6 +121,9 @@ class AudioTaskManager:
             t.status = "RUNNING"
             t.progress = 0
             t.message = ""
+            # 用 render 传入的 output_path 覆盖 submit 时的占位（对齐阶段为空串）
+            if output_path:
+                t.output_path = output_path
             thread = threading.Thread(
                 target=self._run_render,
                 args=(t, float(offset_seconds), tempo_ratio),

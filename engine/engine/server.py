@@ -88,6 +88,7 @@ class _Handler(BaseHTTPRequestHandler):
                     task_id,
                     payload["offset_seconds"],
                     payload.get("tempo_ratio"),
+                    payload.get("output_path"),
                 )
             except (KeyError, RuntimeError) as exc:
                 self._send_json(400, {"error": str(exc)})
