@@ -1,0 +1,38 @@
+app/src/AudioSwap.tsx
+  s_babc8e026502c3::t_0f124a8839a116 167
+  s_babc8e026502c3::t_21add75ba45526 212
+  s_babc8e026502c3::t_a40b16c73d010c 247
+  s_babc8e026502c3::t_b889d6ee4d38d0 83,93-105
+engine/engine/audiotask.py
+  s_babc8e026502c3::t_5a01cb9503e877 167-168
+  s_babc8e026502c3::t_b6af3a224f88a7 195-222,229,236
+app/src/WaveformEditor.test.tsx
+  s_babc8e026502c3::t_fc7b06edb68df2 40-41,68-80
+app/src/App.css
+  s_babc8e026502c3::t_aeb54005a25eb3 410-411
+app/src/WaveformEditor.tsx
+  s_babc8e026502c3::t_2f2aa3097ac6b5 105-107
+  s_babc8e026502c3::t_0422d6248837b2 128-129
+app/src/vite-env.d.ts
+  s_babc8e026502c3::t_e9912e58759c24 16-17
+app/src/AudioSwap.test.tsx
+  s_babc8e026502c3::t_d06381448f51d2 79-80
+  s_babc8e026502c3::t_3d4a0b259a7cde 100,107,216
+  s_babc8e026502c3::t_e0d2afc23a9e81 144-145,169-171,191,195-199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "e1a372d3906a7b58a62993f38036e438eb970c0d",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
