@@ -328,3 +328,35 @@ body {
   display: flex;
   gap: 8px;
 }
+
+/* ---------- 波形图编辑器 ---------- */
+.waveform-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.waveform-canvas {
+  width: 100%;
+  height: 120px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  touch-action: none;
+}
+
+.waveform-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.waveform-method {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
