@@ -1,0 +1,20 @@
+engine/engine/waveform.py
+  s_babc8e026502c3::t_f4f09cbda2996e 45-46
+  s_babc8e026502c3::t_1e2338882dc04f 22-23,25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "7a8c96337f836f4fe3e46cd3959d7b8444cb725d",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
