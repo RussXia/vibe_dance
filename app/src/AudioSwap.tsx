@@ -20,7 +20,6 @@ export default function AudioSwap() {
   const [offset, setOffset] = useState(0);
   const [outputPath, setOutputPath] = useState<string | null>(null);
   const [message, setMessage] = useState('');
-  const audioARef = useRef<HTMLAudioElement | null>(null);
   const audioBRef = useRef<HTMLAudioElement | null>(null);
   const videoARef = useRef<HTMLVideoElement | null>(null);
   const isMountedRef = useRef(true);
@@ -29,10 +28,8 @@ export default function AudioSwap() {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-      audioARef.current?.pause();
       audioBRef.current?.pause();
       videoARef.current?.pause();
-      audioARef.current = null;
       audioBRef.current = null;
       videoARef.current = null;
     };
@@ -80,7 +77,6 @@ export default function AudioSwap() {
   };
 
   const stopPlayback = () => {
-    audioARef.current?.pause();
     audioBRef.current?.pause();
     videoARef.current?.pause();
   };
@@ -90,8 +86,8 @@ export default function AudioSwap() {
     if (!p) return;
     // 停止上次
     stopPlayback();
-    // 素材A 视频（静音，纯画面）+ A/B 音频按 offset 同步
-    // 声音走 Web Audio：A 音频立即播放，B 音频延迟 offset 秒启动
+    // 素材A 视频（静音，纯画面）+ 对齐后的 B 音轨
+    // 成品只保留 B 音轨（去掉 A 现场声），预览与之保持一致：只播 B
     const video = videoARef.current;
     if (video) {
       video.currentTime = 0;
@@ -99,10 +95,9 @@ export default function AudioSwap() {
         /* 视频加载失败不影响音频试听 */
       });
     }
-    audioARef.current = new Audio('file://' + p.audio_a_path);
     audioBRef.current = new Audio('file://' + p.audio_b_path);
+    // B 音轨从对齐偏移处开始铺（offset 秒后启动 B）
     const delayMs = Math.max(0, offset * 1000);
-    audioARef.current.play();
     setTimeout(() => audioBRef.current?.play(), delayMs);
   };
 
