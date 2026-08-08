@@ -88,6 +88,60 @@ body {
   color: var(--text-dim);
 }
 
+/* ---------- 顶部 Tab 导航 ---------- */
+.app-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px;
+}
+
+.app-tab {
+  flex: 1;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.app-tab:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.app-tab.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- 替换音轨独立页面 ---------- */
+.audio-page {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.audio-page .audio-swap {
+  margin-top: 0;
+}
+
+/* ---------- 替换音轨：视频预览 ---------- */
+.audio-preview-stage {
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -327,4 +381,44 @@ body {
 .export-actions {
   display: flex;
   gap: 8px;
+}
+
+/* ---------- 波形图编辑器 ---------- */
+.waveform-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.waveform-canvas {
+  width: 100%;
+  height: 120px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  touch-action: none;
+}
+
+.waveform-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.waveform-hint {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+/* ---------- 替换音轨 ---------- */
+.audio-swap {
+  margin-top: 16px;
+}
+.audio-swap-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }

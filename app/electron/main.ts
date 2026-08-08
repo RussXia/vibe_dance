@@ -86,6 +86,47 @@ ipcMain.handle('engine:get-task', async (_e, taskId: string) => {
   return engineFetch(`/task/${taskId}`);
 });
 
+ipcMain.handle('engine:submit-audio-task', async (_e, payload) => {
+  return engineFetch('/audio-task', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+});
+
+ipcMain.handle('engine:get-audio-task', async (_e, taskId: string) => {
+  return engineFetch(`/audio-task/${taskId}`);
+});
+
+ipcMain.handle('engine:render-audio-task', async (_e, taskId: string, payload: { offset_seconds: number; tempo_ratio?: number }) => {
+  return engineFetch(`/audio-task/${taskId}/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+});
+
+ipcMain.handle('open-audio', async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    filters: [{ name: '音频/视频', extensions: ['mp3', 'wav', 'flac', 'm4a', 'aac', 'mp4', 'mov'] }],
+    properties: ['openFile'],
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  return { path: result.filePaths[0] };
+});
+
+ipcMain.handle('open-any-media', async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    filters: [
+      { name: '视频', extensions: ['mp4', 'mov'] },
+      { name: '音频', extensions: ['mp3', 'wav', 'flac', 'm4a', 'aac'] },
+    ],
+    properties: ['openFile'],
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  return { path: result.filePaths[0] };
+});
+
 ipcMain.handle('open-video', async () => {
   const result = await dialog.showOpenDialog(mainWindow!, {
     filters: [{ name: '视频', extensions: ['mp4', 'mov'] }],

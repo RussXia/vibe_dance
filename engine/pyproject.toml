@@ -5,7 +5,9 @@ requires-python = ">=3.13"
 dependencies = [
   # contrib 提供 CSRT/KCF 等跟踪 API;固定 <5:OpenCV 5.x 移除了 legacy 单目标跟踪 API
   "opencv-contrib-python>=4.9,<5",
+  "opencv-python>=4.9,<5",  # 抑制 ultralytics 传递的 plain opencv 升到 5.x 破坏 contrib
   "ultralytics>=8.2",
+  "librosa>=0.10.2,<0.12",
 ]
 
 [tool.pytest.ini_options]

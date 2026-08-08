@@ -5,10 +5,12 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .task import TaskManager
+from .audiotask import AudioTaskManager
 
 PORT = 8787
 
 _manager = TaskManager()
+_audio_manager = AudioTaskManager()
 _httpd: ThreadingHTTPServer | None = None
 
 
@@ -37,6 +39,14 @@ class _Handler(BaseHTTPRequestHandler):
                 return
             self._send_json(200, info)
             return
+        if self.path.startswith("/audio-task/"):
+            task_id = self.path.split("/")[-1]
+            info = _audio_manager.get(task_id)
+            if info is None:
+                self._send_json(404, {"error": "task not found"})
+                return
+            self._send_json(200, info)
+            return
         self._send_json(404, {"error": "not found"})
 
     def do_POST(self):
@@ -55,6 +65,40 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send_json(400, {"error": f"missing field: {exc}"})
                 return
             self._send_json(200, {"task_id": task_id, "status": "QUEUED"})
+            return
+        if self.path == "/audio-task":
+            payload = self._read_json()
+            try:
+                task_id = _audio_manager.submit(
+                    payload["video_a_path"],
+                    payload["audio_b_path"],
+                    payload["output_path"],
+                    payload.get("params"),
+                )
+            except KeyError as exc:
+                self._send_json(400, {"error": f"missing field: {exc}"})
+                return
+            self._send_json(200, {"task_id": task_id, "status": "QUEUED"})
+            return
+        if self.path.startswith("/audio-task/") and self.path.endswith("/render"):
+            task_id = self.path.split("/")[-2]
+            payload = self._read_json()
+            try:
+                _audio_manager.render(
+                    task_id,
+                    payload["offset_seconds"],
+                    payload.get("tempo_ratio"),
+                    payload.get("output_path"),
+                )
+            except (KeyError, RuntimeError) as exc:
+                self._send_json(400, {"error": str(exc)})
+                return
+            self._send_json(200, {"ok": True})
+            return
+        if self.path.startswith("/audio-task/") and self.path.endswith("/cancel"):
+            task_id = self.path.split("/")[-2]
+            ok = _audio_manager.cancel(task_id)
+            self._send_json(200, {"cancelled": ok})
             return
         if self.path.endswith("/cancel"):
             task_id = self.path.split("/")[-2]
