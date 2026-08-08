@@ -187,25 +187,13 @@ class AudioTaskManager:
             task.status = "RUNNING"
             task.progress = 0
             ffmpeg = find_ffmpeg()
-            # 生成变速后的 B 音轨（若有 tempo_ratio）
-            b_audio = os.path.join(work, "b_preview.m4a")
-            b_varied = os.path.join(work, "b_varied.m4a")
-            ratio = float(tempo_ratio) if tempo_ratio else float(
-                task.align_result.get("tempo_ratio", 1.0)
-            )
-            if abs(ratio - 1.0) < 0.01:
-                b_varied = b_audio  # 基本原速：直接用原音轨
-            else:
-                # atempo 只支持 0.5-2.0，超范围分多段
-                seq = _atempo_chain(ratio)
-                cmd = [ffmpeg, "-y", "-i", b_audio]
-                for a in seq:
-                    cmd += ["-af", f"atempo={a}"]
-                cmd += ["-c:a", "aac", b_varied]
-                _run(cmd, check=True)
+            # B 音轨不做倍速：始终原速播放（用户要求）。tempo_ratio 仍保留在
+            # align_result 供诊断，但混流时忽略，避免 atempo 变速带来的音质损失
+            # 与节奏错位。
+            b_varied = os.path.join(work, "b_preview.m4a")
             task.progress = 40
 
-            # 混流：A 视频流 + 变速后 B 音轨，从 offset 处开始铺，时长以 A 为准
+            # 混流：A 视频流 + 原速 B 音轨，从 offset 处开始铺，时长以 A 为准
             cmd = [
                 ffmpeg, "-y",
                 "-i", task.video_a_path,
@@ -245,20 +233,6 @@ class AudioTaskManager:
         except Exception as exc:  # noqa: BLE001
             task.status = "FAILED"
             task.message = str(exc)
-
-
-def _atempo_chain(ratio: float) -> list[str]:
-    """把变速比拆成 atempo 可用的链（每段 0.5-2.0）。"""
-    seq = []
-    r = ratio
-    while r > 2.0:
-        seq.append("2.0")
-        r /= 2.0
-    while r < 0.5:
-        seq.append("0.5")
-        r /= 0.5
-    seq.append(f"{r:.4f}")
-    return seq
 
 
 class _Cancelled(Exception):
