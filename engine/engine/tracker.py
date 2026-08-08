@@ -51,11 +51,6 @@ class PersonTracker:
         self._lose_threshold = int(self._params.get("lose_threshold", 30))
         self._consecutive_loss = 0
         self._abandoned = False
-        # 历史跟踪框中心（原始分辨率），用于轨迹外推预测目标当前位置，
-        # 供重定位时区分"真正要跟踪的人"与"遮挡/交叉时临时靠近的其他人"。
-        self._history_centers: list[tuple[float, float]] = []
-        # 重定位候选筛选时，允许的尺寸偏离比例（相对目标历史尺寸）
-        self._size_tolerance = float(self._params.get("size_tolerance", 0.5))
 
     def _create_tracker(self):
         if self.tracker_type == "KCF":
@@ -96,23 +91,27 @@ class PersonTracker:
                 break
             # 跟踪在缩小帧上进行
             sframe = self._scale_frame(frame)
-            box_out = None
-            if not self._abandoned:
-                if frame_index == self._init_frame:
-                    sbox = self._scale_box(self._init_bbox)
-                    ok, sbox_out = self._start_tracking(sframe, sbox)
-                else:
-                    ok, sbox_out = self._continue_tracking(sframe, frame_index)
+            if self._abandoned:
+                results.append(None)
+            elif frame_index == self._init_frame:
+                sbox = self._scale_box(self._init_bbox)
+                ok, sbox_out = self._start_tracking(sframe, sbox)
                 if not ok:
                     self._consecutive_loss += 1
                     if self._consecutive_loss >= self._lose_threshold:
                         self._abandoned = True
                 else:
                     self._consecutive_loss = 0
-                    box_out = self._unscale_box(sbox_out) if sbox_out else None
-                    if box_out is not None:
-                        self._push_history(self._center(box_out))
-            results.append(box_out)
+                results.append(self._unscale_box(sbox_out) if sbox_out else None)
+            else:
+                ok, sbox_out = self._continue_tracking(sframe, frame_index)
+                if not ok:
+                    self._consecutive_loss += 1
+                    if self._consecutive_loss >= self._lose_threshold:
+                        self._abandoned = True
+                else:
+                    self._consecutive_loss = 0
+                results.append(self._unscale_box(sbox_out) if sbox_out else None)
             # 进度上报：按已处理帧数占比（0-100），每帧都调（render 负责节流）。
             # 用浮点避免 int() 取整导致前 1% 帧显示 0（看起来卡在 0%）。
             if on_progress is not None and total > 0:
@@ -157,82 +156,29 @@ class PersonTracker:
         if self._model is None:
             self._model = YOLO(str(_model_path()))
 
-    def _push_history(self, center: tuple[float, float]):
-        """把一帧有效跟踪框的中心推入历史轨迹，最多保留最近 10 个。"""
-        self._history_centers.append(center)
-        if len(self._history_centers) > 10:
-            self._history_centers.pop(0)
-
-    def _predict_center(self):
-        """用历史中心线性外推预测目标当前位置。
-
-        用最近两个历史中心的速度外推下一帧位置；历史不足 2 个时退化为
-        最后一个历史中心（无速度信息，预测=当前位置）。
-        """
-        if not self._history_centers:
-            return None
-        if len(self._history_centers) == 1:
-            return self._history_centers[-1]
-        (x1, y1), (x2, y2) = self._history_centers[-2], self._history_centers[-1]
-        vx, vy = x2 - x1, y2 - y1
-        return (x2 + vx, y2 + vy)
-
-    def _target_size(self):
-        """目标历史尺寸估计：最近历史框宽高（取最后一个，原始分辨率）。"""
-        # _history_centers 只存中心，尺寸从 _last_box 估。为更稳，用 _init_bbox 的宽高
-        # 作为目标基准尺寸（人在跟踪过程中大小变化有限）。
-        return self._init_bbox[2], self._init_bbox[3]
-
     def _redetect(self, frame):
-        """YOLO 检测所有人，返回与目标轨迹最匹配的 person 框。
-
-        优先按「离轨迹预测中心最近」选人，避免 CSRT 漂移被 IoU 匹配固化
-        （遮挡/交叉时跟踪框跳到他人身上，IoU 匹配反而确认错误目标）。
-        仅当轨迹预测不可用时（无历史），退化为 IoU 匹配 + 最近中心降级。
-        """
+        """YOLO 检测所有人，返回与当前框 IoU 最高的 person 框。"""
         self._ensure_model()
         dets = self._model(frame, verbose=False)[0]
-        persons = []
+        best_box, best_iou = None, 0.0
+        cx, cy = self._center(self._last_box)
         for det in dets.boxes:
             if int(det.cls) != 0:  # 只取 person 类
                 continue
             x1, y1, x2, y2 = [float(v) for v in det.xyxy[0]]
             box = (int(x1), int(y1), int(x2 - x1), int(y2 - y1))
-            persons.append(box)
-
-        if not persons:
-            return None
-
-        predicted = self._predict_center()
-        if predicted is not None:
-            # 尺寸约束：过滤掉与目标基准尺寸偏离过大的检测（如把两人框一起的大框）
-            tw, th = self._target_size()
-            filtered = []
-            for box in persons:
-                bw, bh = box[2], box[3]
-                if (abs(bw - tw) / max(tw, 1) <= self._size_tolerance and
-                        abs(bh - th) / max(th, 1) <= self._size_tolerance):
-                    filtered.append(box)
-            candidates = filtered if filtered else persons
-            # 选离轨迹预测中心最近的人
-            px, py = predicted
-            return min(
-                candidates,
-                key=lambda b: (self._center(b)[0] - px) ** 2
-                + (self._center(b)[1] - py) ** 2,
-            )
-
-        # 无历史轨迹（退化路径）：IoU 匹配 + 最近中心降级
-        best_box, best_iou = None, 0.0
-        cx, cy = self._center(self._last_box)
-        for box in persons:
             iou = self._iou(self._last_box, box)
             if iou > best_iou:
                 best_iou, best_box = iou, box
+        # IoU 过低说明当前框可能已漂移，用离当前中心最近的检测替代
         if best_iou < 0.1:
             nearest = None
             min_dist = float("inf")
-            for b in persons:
+            for det in dets.boxes:
+                if int(det.cls) != 0:
+                    continue
+                x1, y1, x2, y2 = [float(v) for v in det.xyxy[0]]
+                b = (int(x1), int(y1), int(x2 - x1), int(y2 - y1))
                 d = (self._center(b)[0] - cx) ** 2 + (self._center(b)[1] - cy) ** 2
                 if d < min_dist:
                     min_dist, nearest = d, b
