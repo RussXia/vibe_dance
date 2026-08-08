@@ -1,0 +1,30 @@
+app/src/AudioSwap.tsx
+  s_babc8e026502c3::t_9a40b49f27b183 93-101
+  s_babc8e026502c3::t_0a661f10ff31d1 116-119
+  s_babc8e026502c3::t_21ec0b6c0d3f7b 159-170
+engine/engine/server.py
+  s_babc8e026502c3::t_bde21b03b3d81a 91
+app/src/App.css
+  s_babc8e026502c3::t_744f25ae05d4b5 136-144
+app/src/AudioSwap.test.tsx
+  s_babc8e026502c3::t_6b1f40dedd31c1 136-139
+  s_babc8e026502c3::t_f85c047da9c54a 221-225
+engine/engine/audiotask.py
+  s_babc8e026502c3::t_bd266266477e62 98-107,124-126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "44c944c0157bdfcffe1929c7817623db26aa6e07",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
