@@ -19,8 +19,6 @@ from .align import _extract_audio, align_tracks
 from .ffmpeg import find_ffmpeg
 from .waveform import extract_preview_audio, extract_waveform
 
-_SAMPLE_RATE = 16000
-
 
 def _run(cmd, **kwargs):
     return subprocess.run(cmd, capture_output=True, **kwargs)
@@ -103,8 +101,14 @@ class AudioTaskManager:
             t = self._tasks.get(task_id)
             if t is None:
                 raise KeyError(f"task not found: {task_id}")
-            if t.status == "CANCELLED":
-                raise RuntimeError("task cancelled")
+            if t.status not in ("DONE", "RUNNING"):
+                raise RuntimeError(
+                    f"task status must be DONE or RUNNING, got {t.status}"
+                )
+            # 若对齐线程仍在运行，先等它结束，避免两个线程并发改 task 字段
+            if t._thread is not None and t._thread.is_alive():
+                # 释放锁再等，避免长等待阻塞其他操作
+                pass  # 标记：下面释放锁后 join
             t._cancel = False
             t.status = "RUNNING"
             t.progress = 0
@@ -115,6 +119,9 @@ class AudioTaskManager:
                 daemon=True,
             )
             thread.start()
+        # 释放锁后再 join align 线程，避免长等待阻塞其他操作
+        if t._thread is not None and t._thread.is_alive():
+            t._thread.join()
 
     def _run_align(self, task):
         work = _work_dir(task.task_id)
@@ -162,6 +169,10 @@ class AudioTaskManager:
     def _run_render(self, task, offset_seconds, tempo_ratio):
         work = _work_dir(task.task_id)
         try:
+            # 防御性检查：align_result 必须存在
+            if task.align_result is None:
+                raise RuntimeError("对齐未完成，无法渲染")
+
             task.status = "RUNNING"
             task.progress = 0
             ffmpeg = find_ffmpeg()
@@ -169,7 +180,7 @@ class AudioTaskManager:
             b_audio = os.path.join(work, "b_preview.m4a")
             b_varied = os.path.join(work, "b_varied.m4a")
             ratio = float(tempo_ratio) if tempo_ratio else float(
-                (task.align_result or {}).get("tempo_ratio", 1.0)
+                task.align_result.get("tempo_ratio", 1.0)
             )
             if abs(ratio - 1.0) < 0.01:
                 b_varied = b_audio  # 基本原速：直接用原音轨
@@ -206,6 +217,12 @@ class AudioTaskManager:
                 raise RuntimeError(
                     f"混流导出失败: {err[-500:].decode(errors='replace')}"
                 )
+            # 验证输出文件存在且非空
+            if not os.path.exists(task.output_path):
+                raise RuntimeError(f"输出文件不存在: {task.output_path}")
+            if os.path.getsize(task.output_path) == 0:
+                raise RuntimeError(f"输出文件为空: {task.output_path}")
+
             task.progress = 100
             if task._cancel:
                 task.status = "CANCELLED"
