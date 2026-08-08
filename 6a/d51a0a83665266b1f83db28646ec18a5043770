@@ -1,0 +1,26 @@
+app/src/App.tsx
+  s_babc8e026502c3::t_5c0c4d2316dd78 122-144
+  s_babc8e026502c3::t_3977780ca4336f 7-8,10
+  s_babc8e026502c3::t_2b65833ce9b7e9 205-209
+app/src/App.css
+  s_babc8e026502c3::t_d4c13dbe617ce4 91-124
+  s_babc8e026502c3::t_fb07a36c6e3724 125-135
+app/src/App.test.tsx
+  s_babc8e026502c3::t_5c6eedb1879b44 108-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "6ad51a0a83665266b1f83db28646ec18a5043770",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
