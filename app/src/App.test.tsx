@@ -105,3 +105,58 @@ describe('App 导出流程', () => {
     });
   });
 });
+
+describe('App 顶部 Tab 切换', () => {
+  const makeApi = () => ({
+    openVideo: vi.fn().mockResolvedValue({ path: '/tmp/a.mp4' }),
+    openAudio: vi.fn().mockResolvedValue({ path: '/tmp/b.mp3' }),
+    openAnyMedia: vi.fn().mockResolvedValue({ path: '/tmp/b.mp3' }),
+    saveVideo: vi.fn().mockResolvedValue({ path: '/tmp/out.mp4' }),
+    showInFolder: vi.fn().mockResolvedValue({ ok: true }),
+    submitTask: vi.fn().mockResolvedValue({ task_id: 'abc', status: 'QUEUED' }),
+    getTask: vi.fn().mockResolvedValue({ task_id: 'abc', status: 'DONE', progress: 100, message: '' }),
+    submitAudioTask: vi.fn().mockResolvedValue({ task_id: 'at1', status: 'QUEUED' }),
+    getAudioTask: vi.fn().mockResolvedValue({
+      task_id: 'at1', status: 'DONE', progress: 100, message: '',
+      align_result: { offset_seconds: 2, tempo_ratio: 1, confidence: 'high', method: 'dtw' },
+      preview: {
+        video_a_path: '/tmp/a.mp4', audio_a_path: '/tmp/a.m4a', audio_b_path: '/tmp/b.m4a',
+        waveform_a: [0.5, 0.6, 0.7], waveform_b: [0.4, 0.5, 0.6],
+      },
+    }),
+    renderAudioTask: vi.fn().mockResolvedValue({ ok: true }),
+    startEngine: vi.fn().mockResolvedValue({ ok: true }),
+  });
+
+  beforeEach(() => {
+    (window as any).api = makeApi();
+  });
+
+  it('默认显示框选裁剪页，含 tab 栏', () => {
+    render(<App />);
+    expect(screen.getByTestId('tab-crop')).toBeTruthy();
+    expect(screen.getByTestId('tab-audio')).toBeTruthy();
+    // 默认 tab=crop：显示「打开视频」按钮
+    expect(screen.getByRole('button', { name: '打开视频' })).toBeTruthy();
+  });
+
+  it('切到替换音轨 tab 后显示 AudioSwap，隐藏框选裁剪内容', () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId('tab-audio'));
+    // AudioSwap 素材选择按钮出现
+    expect(screen.getByRole('button', { name: /选择素材A/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /选择素材B/ })).toBeTruthy();
+    // 框选裁剪的「打开视频」不再显示（独立页面切换）
+    expect(screen.queryByRole('button', { name: '打开视频' })).toBeNull();
+  });
+
+  it('切回框选裁剪 tab 后恢复裁剪内容', () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId('tab-audio'));
+    expect(screen.getByRole('button', { name: /选择素材A/ })).toBeTruthy();
+    fireEvent.click(screen.getByTestId('tab-crop'));
+    // 恢复「打开视频」
+    expect(screen.getByRole('button', { name: '打开视频' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /选择素材A/ })).toBeNull();
+  });
+});

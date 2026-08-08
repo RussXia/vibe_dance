@@ -4,7 +4,10 @@ import OutputSizeSelector from './OutputSizeSelector';
 import AudioSwap from './AudioSwap';
 import './App.css';
 
+type TabKey = 'crop' | 'audio';
+
 export default function App() {
+  const [activeTab, setActiveTab] = useState<TabKey>('crop');
   const [videoPath, setVideoPath] = useState<string | null>(null);
   const [status, setStatus] = useState('idle');
   const [box, setBox] = useState<ViewportBox | null>(null);
@@ -116,7 +119,29 @@ export default function App() {
         </div>
       </header>
 
-      <div className="workspace">
+      <nav className="app-tabs" role="tablist">
+        <button
+          role="tab"
+          aria-selected={activeTab === 'crop'}
+          data-testid="tab-crop"
+          className={`app-tab${activeTab === 'crop' ? ' active' : ''}`}
+          onClick={() => setActiveTab('crop')}
+        >
+          🎬 框选裁剪
+        </button>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'audio'}
+          data-testid="tab-audio"
+          className={`app-tab${activeTab === 'audio' ? ' active' : ''}`}
+          onClick={() => setActiveTab('audio')}
+        >
+          🎵 替换音轨
+        </button>
+      </nav>
+
+      {activeTab === 'crop' ? (
+        <div className="workspace">
         {/* 左侧：视频预览 + 取景框 */}
         <div className="card preview-card">
           <div className="card-title">预览 · 框选目标人物</div>
@@ -175,10 +200,13 @@ export default function App() {
               </div>
             </div>
           )}
-
-          <AudioSwap />
         </div>
       </div>
+      ) : (
+        <div className="audio-page">
+          <AudioSwap />
+        </div>
+      )}
     </div>
   );
 }
