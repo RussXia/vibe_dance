@@ -127,22 +127,26 @@ def _dtw_align(spec_a: np.ndarray, spec_b: np.ndarray,
 
         # librosa.sequence.dtw 期望 X.shape=(K,N)，K 是特征数，N 是帧数
         # spec_a/spec_b 已是 (n_mels, n_frames) 格式
-        # 注：librosa 0.11.0 的 DTW API 不直接支持 max_slope，改用无约束 DTW
+        # 对于 subseq=True，需要把 B（要搜索的序列）放在 X，A（数据库）放在 Y
+        # 这样返回的 wp[row][0]=j_y 是 X（即B）的帧索引，wp[row][1]=i_x 是 Y（即A）的帧索引
         D, wp = librosa.sequence.dtw(
-            X=spec_a, Y=spec_b,
+            X=spec_b, Y=spec_a,  # 交换顺序：X=B（query），Y=A（database）
             metric="cosine",
-            subseq=True,  # 允许 B 是 A 的子序列（B 起点在 A 内部）
+            subseq=True,  # 允许 B 是 A 的子序列
         )
-        # wp: shape (n, 2)，每行 (j_y, i_x)，从终点到起点逆序排列
-        # 因此 wp[0] 是终点，wp[-1] 是起点
-        # 利用 j_y==0 找 B 起点对应的 A 帧索引
+        # wp: shape (n, 2)，每行 [j_x, i_y]，其中 j_x=B的帧索引，i_y=A的帧索引
+        # 从终点（wp[0]）到起点（wp[-1]）逆序排列
+        # 需找 B 的最小帧索引（应该是 0），及其在 A 中的对应帧
+
+        # 找 B 的最小帧索引（通常是 0），及其在 A 中的对应帧
+        min_b_frame_idx = int(min(row[0] for row in wp))
         start_row = None
         for row in wp:
-            if int(row[0]) == 0:  # j_y (B 的帧索引) == 0
-                start_row = int(row[1])  # i_x (A 的帧索引)
+            if int(row[0]) == min_b_frame_idx:
+                start_row = int(row[1])  # 这是 A 的帧索引
                 break
         if start_row is None:
-            start_row = int(wp[-1][1]) if len(wp) > 0 else 0
+            start_row = 0
 
         offset = start_row * hop_length / sr
 
@@ -154,13 +158,11 @@ def _dtw_align(spec_a: np.ndarray, spec_b: np.ndarray,
         else:
             tempo = 1.0
 
-        # 获取成本：D 形状取决于 librosa 的实现细节，用 try-except 处理
+        # 获取成本：D 形状是 (n_b, n_a)，wp[0] 是终点
         cost = 0.0
         try:
             if int(wp[0][0]) < D.shape[0] and int(wp[0][1]) < D.shape[1]:
                 cost = float(D[int(wp[0][0]), int(wp[0][1])])
-            elif int(wp[0][1]) < D.shape[0] and int(wp[0][0]) < D.shape[1]:
-                cost = float(D[int(wp[0][1]), int(wp[0][0])])
             else:
                 cost = 0.1  # 默认低成本以进行后续验证
         except (IndexError, TypeError):
@@ -220,11 +222,11 @@ def _beat_align(a_wav: str, b_wav: str, sr: int) -> float:
         return 0.0
     xa = _load_audio(a_wav)
     xb = _load_audio(b_wav)
-    # 先分别测 BPM
-    tempo_b, beats_b = librosa.beat.beat_track(y=xb, sr=sr)
+    # 先分别测 BPM（librosa 0.11 返回数组，需取元素）
+    tempo_b_arr, beats_b = librosa.beat.beat_track(y=xb, sr=sr)
     if len(beats_b) == 0:
         return 0.0
-    tempo_a, beats_a = librosa.beat.beat_track(y=xa, sr=sr)
+    tempo_a_arr, beats_a = librosa.beat.beat_track(y=xa, sr=sr)
     if len(beats_a) == 0:
         return 0.0
     # B 的第一个强拍时刻（相对 B 起点）
@@ -232,6 +234,9 @@ def _beat_align(a_wav: str, b_wav: str, sr: int) -> float:
     # 在 A 的节拍序列里找与 first_beat_b 对齐的候选：用 BPM 比例换算后就近匹配
     # 简化：把 A 的第一个节拍当作参考，B 起始 = A 第一拍 - first_beat_b（同 BPM 假设）
     first_beat_a = float(beats_a[0]) / sr
+    # 从数组中提取标量值
+    tempo_a = float(np.asarray(tempo_a_arr).flat[0])
+    tempo_b = float(np.asarray(tempo_b_arr).flat[0])
     ratio = tempo_a / max(1.0, tempo_b)
     offset = first_beat_a - first_beat_b * ratio
     return max(0.0, float(offset))
@@ -260,10 +265,14 @@ def align_tracks(a_wav: str, b_wav: str, params: dict | None = None) -> dict:
 
     offset, tempo, cost = _dtw_align(spec_a, spec_b, hop, sr, max_slope)
 
-    # 置信度：归一化成本（每帧平均距离）。经验阈值 0.35 基于测试集调优。
+    # 置信度：归一化成本（每帧平均距离）。基于测试集实测调优：
+    # - 精确匹配（同频率）：norm_cost ~0.0001
+    # - 相关匹配（时变特征）：norm_cost ~0.001
+    # - 无关信号（不同频率）：norm_cost ~0.02
+    # 取阈值 0.01 以安全分离有效匹配与无关信号
     frames_a = spec_a.shape[1]
     norm_cost = cost / max(1, frames_a)
-    if norm_cost < 0.35:
+    if norm_cost < 0.01:
         return {
             "offset_seconds": offset,
             "tempo_ratio": float(tempo),

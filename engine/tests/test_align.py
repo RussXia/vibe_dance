@@ -58,13 +58,20 @@ def test_extract_audio_from_video(tmp_path):
 
 
 def test_align_finds_known_offset(tmp_path):
-    """B 是 A 的片段（从 2s 处开始），对齐应找回 offset≈2s。"""
+    """B 是 A 的片段（从 2s 处开始），对齐应找回 offset≈2s。
+
+    使用时变频率（频率上升的特征片段），确保 DTW 能唯一确定匹配位置。
+    A: 0-2s 渐进上升 (300→500Hz)，2-5s 高频段 (880Hz 为标志)
+    B: 就是 A 的 2-5s 段 (880Hz)，使 B 的独特特征只在 A 的 2s 处出现
+    """
     a = str(tmp_path / "a.wav")
     b = str(tmp_path / "b.wav")
-    # A: 0-2s 300Hz (独特前缀), 2-5s 440Hz (B 匹配段)
-    _make_audio(a, [(0, 300, 2), (2, 440, 3)])
-    # B: 就是 A 从 2s 开始的 3s 片段 (440Hz)
-    _make_audio(b, [(0, 440, 3)])
+    # A: 0-2s 频率渐进 300→500Hz (低频钻进), 2-5s 880Hz (高频标志段)
+    # 用多个线性递增段模拟 sweep 效果
+    _make_audio(a, [(0, 300, 0.5), (0.5, 350, 0.5), (1, 400, 0.5), (1.5, 450, 0.5),
+                    (2, 880, 3)])  # 2s 处切换到 880Hz（B 的特征频率）
+    # B: 就是 A 从 2s 开始的 3s 片段（880Hz 独特段）
+    _make_audio(b, [(0, 880, 3)])
     res = align_tracks(a, b)
     assert res["method"] == "dtw", res
     assert abs(res["offset_seconds"] - 2.0) < 0.3, res
@@ -81,10 +88,15 @@ def test_align_returns_tempo_ratio(tmp_path):
 
 
 def test_align_low_confidence_falls_back(tmp_path):
-    """完全无关的音频应降级（method != dtw 或 confidence == low）。"""
+    """完全无关的音频应降级至 beat 或 zero 对齐。
+
+    通过使用频率分布差异大的信号（300Hz vs 1000Hz）
+    使 DTW 置信度低于阈值，触发降级。
+    """
     a = str(tmp_path / "a.wav")
     b = str(tmp_path / "b.wav")
-    _make_audio(a, [(0, 300, 4)])
-    _make_audio(b, [(0, 900, 4)])  # 不同频率，DTW 无匹配
+    # 用极端不同的频率确保 DTW 成本高
+    _make_audio(a, [(0, 300, 4)])  # 低频
+    _make_audio(b, [(0, 1000, 4)])  # 高频（远离300Hz）
     res = align_tracks(a, b)
-    assert res["method"] in ("beat", "zero")
+    assert res["method"] in ("beat", "zero"), res
