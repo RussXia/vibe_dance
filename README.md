@@ -136,3 +136,4 @@ npm run package:dir   # 仅生成 .app（不做 dmg，验证更快）
 ### 注意事项
 
 - **FFmpeg**：渲染编码依赖系统级 `ffmpeg`，目标机器需安装 FFmpeg 8.x（仅开发机与 CI 需要；引擎与 App 本身不内置）。
+- **音频对齐（替换音轨）**：引擎内置 librosa（随打包分发），无需额外安装。

@@ -13,7 +13,18 @@ a = Analysis(
         # YOLO 权重随引擎分发，避免运行时联网下载
         ("yolov8n.pt", "."),
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        # librosa + 其依赖的动态导入模块
+        # numba/sklearn/soundfile 在打包时需显式指定以避免 ImportError
+        "numba.core.registry",
+        "numba.core.typedarray",
+        "numba.core.types",
+        "sklearn.utils._typedefs",
+        "sklearn.utils._heap",
+        "sklearn.neighbors._partition_nodes",
+        "soundfile",
+        "audioread.ffdec",
+    ],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
