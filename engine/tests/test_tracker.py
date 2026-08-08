@@ -2,7 +2,6 @@ from engine.tracker import PersonTracker
 from engine.video import VideoReader
 from .fixtures import make_synthetic_video
 
-
 def _build_tracker(tmp_path, frames=20, init_frame=0):
     path = str(tmp_path / "track.mp4")
     make_synthetic_video(path, frames=frames)
@@ -90,3 +89,73 @@ def test_track_reports_progress(tmp_path):
         assert all(progress[i] <= progress[i + 1] for i in range(len(progress) - 1))
     finally:
         reader.release()
+
+
+def test_redetect_prefers_trajectory_prediction(tmp_path):
+    """CSRT 漂到他人身上后，重定位应基于轨迹预测回到原目标，而非固化跳变。
+
+    场景：目标 A 持续左移（历史中心 (125,140)->(105,140)->(85,140)），
+    遮挡后 CSRT 框漂到另一人 B（(180,100,50,80)）身上。
+    修复前 _redetect 按 IoU 匹配选中 B（固化跳变）；
+    修复后应按轨迹预测位置选中 A。
+    """
+    import types
+
+    tracker = PersonTracker.__new__(PersonTracker)
+    tracker._model = None
+    tracker._size_tolerance = 0.5
+    tracker._init_bbox = (50, 100, 50, 80)  # 目标基准尺寸
+    tracker._last_box = (180, 100, 50, 80)  # CSRT 已漂到 B
+    tracker._history_centers = [(125, 140), (105, 140), (85, 140)]  # 轨迹显示 A 在左移
+
+    # YOLO 检测到 A 和 B 两个人
+    class FakeDet:
+        def __init__(self, b):
+            x, y, w, h = b
+            self.cls = 0
+            self.xyxy = [(x, y, x + w, y + h)]
+
+    class FakeResult:
+        boxes = None
+
+    class FakeModel:
+        def __call__(self, frame, verbose=False):
+            r = FakeResult()
+            r.boxes = [FakeDet(b) for b in [(50, 100, 50, 80), (180, 100, 50, 80)]]
+            return [r]
+
+    tracker._model = FakeModel()
+
+    person_a = (50, 100, 50, 80)
+    chosen = tracker._redetect(None)
+    assert chosen == person_a, f"应回到原目标 A，实际选中 {chosen}"
+
+
+def test_redetect_falls_back_to_iou_without_history(tmp_path):
+    """无历史轨迹时（如刚开始跟踪），重定位退化为 IoU 匹配 + 最近中心。"""
+    tracker = PersonTracker.__new__(PersonTracker)
+    tracker._model = None
+    tracker._size_tolerance = 0.5
+    tracker._init_bbox = (100, 100, 50, 80)
+    tracker._last_box = (100, 100, 50, 80)
+    tracker._history_centers = []  # 无历史
+
+    class FakeDet:
+        def __init__(self, b):
+            x, y, w, h = b
+            self.cls = 0
+            self.xyxy = [(x, y, x + w, y + h)]
+
+    class FakeResult:
+        boxes = None
+
+    class FakeModel:
+        def __call__(self, frame, verbose=False):
+            r = FakeResult()
+            r.boxes = [FakeDet(b) for b in [(100, 100, 50, 80)]]
+            return [r]
+
+    tracker._model = FakeModel()
+    chosen = tracker._redetect(None)
+    assert chosen == (100, 100, 50, 80)
+
