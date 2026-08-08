@@ -76,6 +76,8 @@ const api = {
       audio_b_path: '/tmp/b.m4a',
       waveform_a: [0.5, 0.6, 0.7],
       waveform_b: [0.4, 0.5, 0.6],
+      duration_a: 0.3,
+      duration_b: 0.3,
     },
   }),
   renderAudioTask: vi.fn().mockResolvedValue({ ok: true }),
@@ -95,14 +97,14 @@ describe('AudioSwap', () => {
     render(<AudioSwap />);
     expect(screen.getByRole('button', { name: /选择素材A/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /选择素材B/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /开始对齐/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /开始处理/ })).toBeTruthy();
   });
 
   it('对齐完成后显示波形图与下载按钮', async () => {
     render(<AudioSwap />);
     const selectABtn = screen.getByRole('button', { name: /选择素材A/ });
     const selectBBtn = screen.getByRole('button', { name: /选择素材B/ });
-    const alignBtn = screen.getByRole('button', { name: /开始对齐/ });
+    const alignBtn = screen.getByRole('button', { name: /开始处理/ });
 
     // Use act() to wrap the async click
     await act(async () => {
@@ -139,8 +141,8 @@ describe('AudioSwap', () => {
     expect(video.src).toContain('/tmp/a.mp4');
   });
 
-  it('低置信度时提示手动微调', async () => {
-    // Create a new mock API with low confidence
+  it('处理完成后不显示自动对齐提示（纯手动对齐）', async () => {
+    // mock 返回 confidence='low' 的 align_result，但 UI 不应展示对齐提示
     const lowConfidenceApi = {
       openVideo: vi.fn().mockResolvedValue({ path: '/tmp/a.mp4' }),
       openAudio: vi.fn().mockResolvedValue({ path: '/tmp/b.mp3' }),
@@ -164,7 +166,9 @@ describe('AudioSwap', () => {
           audio_a_path: '/tmp/a.m4a',
           audio_b_path: '/tmp/b.m4a',
           waveform_a: [0.5],
-          waveform_b: [0.4]
+          waveform_b: [0.4],
+          duration_a: 0.1,
+          duration_b: 0.1,
         },
       }),
       renderAudioTask: vi.fn().mockResolvedValue({ ok: true }),
@@ -184,12 +188,15 @@ describe('AudioSwap', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /开始对齐/ }));
+      fireEvent.click(screen.getByRole('button', { name: /开始处理/ }));
       await new Promise(r => setTimeout(r, 2000));
     });
 
-    // Check if the hint text appears - the confidence hint div should contain it
-    expect(screen.getByText(/对齐置信度较低/)).toBeTruthy();
+    // 不应显示自动对齐提示/置信度文案
+    expect(screen.queryByText(/对齐置信度较低/)).toBeNull();
+    expect(screen.queryByText(/精确对齐|节拍对齐|从头铺设/)).toBeNull();
+    // 应显示波形编辑器（可手动拖动）
+    expect(screen.getByTestId('waveform-editor')).toBeTruthy();
   });
 
   it('下载流程：renderAudioTask 被调用', async () => {
@@ -206,7 +213,7 @@ describe('AudioSwap', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /开始对齐/ }));
+      fireEvent.click(screen.getByRole('button', { name: /开始处理/ }));
       await new Promise(r => setTimeout(r, 2000));
     });
 

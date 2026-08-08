@@ -164,6 +164,8 @@ class AudioTaskManager:
                 "audio_b_path": audio_b,
                 "waveform_a": wf_a,
                 "waveform_b": wf_b,
+                "duration_a": len(wf_a) * 0.1,  # 波形每样本 0.1s
+                "duration_b": len(wf_b) * 0.1,
             }
             task.progress = 100
             if task._cancel:
@@ -190,21 +192,48 @@ class AudioTaskManager:
             # B 音轨不做倍速：始终原速播放（用户要求）。tempo_ratio 仍保留在
             # align_result 供诊断，但混流时忽略，避免 atempo 变速带来的音质损失
             # 与节奏错位。
-            b_varied = os.path.join(work, "b_preview.m4a")
+            b_audio = os.path.join(work, "b_preview.m4a")
+            task.progress = 20
+
+            # offset 语义：B 起点在 A 时间轴上的位置（可负）。
+            # - offset >= 0：B 从 A 的 offset 秒处开始铺 → 用 adelay 推迟 offset
+            # - offset < 0：B 起点在 A 之前，A 的 0 时刻 = B 的 |offset| 秒处
+            #   → 先用 -ss 截掉 B 前段，再与 A 的 0 对齐（adelay=0）
+            b_mux = b_audio
+            delay_ms = int(offset_seconds * 1000)
+            if offset_seconds < 0:
+                b_cut = os.path.join(work, "b_cut.m4a")
+                cmd_cut = [
+                    ffmpeg, "-y",
+                    "-ss", f"{-offset_seconds:.3f}",
+                    "-i", b_audio,
+                    "-c:a", "aac", b_cut,
+                ]
+                proc_cut = subprocess.Popen(
+                    cmd_cut, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                )
+                proc_cut.wait()
+                if proc_cut.returncode != 0:
+                    err = proc_cut.stderr.read() if proc_cut.stderr else b""
+                    raise RuntimeError(
+                        f"截取 B 音轨失败: {err[-500:].decode(errors='replace')}"
+                    )
+                b_mux = b_cut
+                delay_ms = 0
             task.progress = 40
 
             # 混流：A 视频流 + 原速 B 音轨，从 offset 处开始铺，时长以 A 为准
             cmd = [
                 ffmpeg, "-y",
                 "-i", task.video_a_path,
-                "-i", b_varied,
+                "-i", b_mux,
                 "-map", "0:v:0",
                 "-map", "1:a:0",
                 "-c:v", "copy",
                 "-c:a", "aac", "-b:a", "192k",
                 "-shortest",
                 # B 音轨整体前移 offset 秒：用 adelay 把 B 起点推迟到 offset
-                "-af", f"adelay={int(offset_seconds * 1000)}:all=1",
+                "-af", f"adelay={delay_ms}:all=1",
                 task.output_path,
             ]
             proc = subprocess.Popen(

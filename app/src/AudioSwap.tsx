@@ -2,12 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import WaveformEditor from './WaveformEditor';
 import type { AudioPreview, AudioTaskInfo } from './vite-env';
 
-const METHOD_LABEL: Record<string, string> = { dtw: '精确对齐', beat: '节拍对齐', zero: '从头铺设' };
-const CONFIDENCE_HINT: Record<string, string> = {
-  high: '',
-  low: '对齐置信度较低，可拖动波形微调偏移',
-};
-
 type Phase = 'idle' | 'aligning' | 'aligned' | 'rendering' | 'done' | 'failed';
 
 export default function AudioSwap() {
@@ -86,7 +80,7 @@ export default function AudioSwap() {
     if (!p) return;
     // 停止上次
     stopPlayback();
-    // 素材A 视频（静音，纯画面）+ 对齐后的 B 音轨
+    // 素材A 视频（静音，纯画面）+ 原速 B 音轨
     // 成品只保留 B 音轨（去掉 A 现场声），预览与之保持一致：只播 B
     const video = videoARef.current;
     if (video) {
@@ -96,9 +90,19 @@ export default function AudioSwap() {
       });
     }
     audioBRef.current = new Audio('file://' + p.audio_b_path);
-    // B 音轨从对齐偏移处开始铺（offset 秒后启动 B）
-    const delayMs = Math.max(0, offset * 1000);
-    setTimeout(() => audioBRef.current?.play(), delayMs);
+    const b = audioBRef.current;
+    // B 起点在 A 时间轴上的位置 offset：
+    // - offset >= 0：B 从 0 开始，延迟 offset 秒启动（A 前段静音）
+    // - offset < 0：B 起点在 A 之前，A 的 0 时刻 = B 的 |offset| 秒处
+    //   → B 跳到 |offset| 秒处立即播放，与视频同步
+    if (offset < 0) {
+      b.currentTime = Math.min(-offset, p.duration_b);
+      void b.play().catch(() => {});
+    } else {
+      b.currentTime = 0;
+      const delayMs = Math.max(0, offset * 1000);
+      setTimeout(() => b.play().catch(() => {}), delayMs);
+    }
   };
 
   const download = async () => {
@@ -142,15 +146,9 @@ export default function AudioSwap() {
     }
     if (phase === 'aligned') {
       const p = info?.preview;
-      const ar = info?.align_result;
       if (!p) return null;
       return (
         <>
-          {ar && ar.confidence === 'low' && (
-            <div className="status err" style={{ marginBottom: 10 }}>
-              {CONFIDENCE_HINT.low}（当前: {METHOD_LABEL[ar.method] || ar.method}）
-            </div>
-          )}
           {/* 预览：素材A 视频（静音）+ 替换后音频混音 */}
           <div className="audio-preview-stage">
             <video
@@ -166,7 +164,7 @@ export default function AudioSwap() {
           <WaveformEditor
             preview={p}
             initialOffset={offset}
-            durationA={p.waveform_a.length / 10}
+            durationA={p.duration_a}
             onOffsetChange={setOffset}
           />
           <div className="export-actions" style={{ marginTop: 12 }}>
@@ -211,7 +209,7 @@ export default function AudioSwap() {
 
   return (
     <div className="card audio-swap">
-      <div className="card-title">替换音轨 · 自动对齐</div>
+      <div className="card-title">替换音轨 · 手动对齐</div>
       <div className="audio-swap-row">
         <button
           className="btn btn-secondary"
@@ -246,7 +244,7 @@ export default function AudioSwap() {
         onClick={startAlign}
         disabled={!videoAPath || !audioBPath || phase === 'aligning' || phase === 'rendering'}
       >
-        {phase === 'aligning' ? '对齐中…' : '开始对齐'}
+        {phase === 'aligning' ? '处理中…' : '开始处理'}
       </button>
       <div style={{ marginTop: 12 }}>{renderResult()}</div>
     </div>

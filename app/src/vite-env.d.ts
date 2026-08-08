@@ -13,6 +13,8 @@ export interface AudioPreview {
   audio_b_path: string;
   waveform_a: number[];
   waveform_b: number[];
+  duration_a: number;
+  duration_b: number;
 }
 
 export interface AudioTaskInfo {

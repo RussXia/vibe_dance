@@ -407,11 +407,8 @@ body {
   color: var(--text-dim);
 }
 
-.waveform-method {
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 2px 8px;
-  border-radius: 4px;
+.waveform-hint {
+  color: var(--text-faint);
   font-size: 12px;
 }
 

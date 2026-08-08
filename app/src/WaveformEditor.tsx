@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AudioPreview } from './vite-env';
 
-const METHOD_LABEL: Record<string, string> = { dtw: '精确对齐', beat: '节拍对齐', zero: '从头铺设' };
-
 interface Props {
   preview: AudioPreview;
   initialOffset: number;
@@ -13,7 +11,6 @@ interface Props {
 export default function WaveformEditor({ preview, initialOffset, durationA, onOffsetChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [offset, setOffset] = useState(initialOffset);
-  const [method, setMethod] = useState('dtw');
   const dragRef = useRef<{ startX: number; startOffset: number } | null>(null);
 
   // offset 变化时通知父组件
@@ -105,7 +102,9 @@ export default function WaveformEditor({ preview, initialOffset, durationA, onOf
     if (!drag || !canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const deltaS = ((e.clientX - drag.startX) / rect.width) * durationA;
-    const next = Math.max(0, Math.min(drag.startOffset + deltaS, durationA));
+    // B 可拖到 A 起点之前：范围 [-durationB, durationA]
+    const minOffset = -preview.duration_b;
+    const next = Math.max(minOffset, Math.min(drag.startOffset + deltaS, durationA));
     setOffset(next);
   };
 
@@ -126,8 +125,8 @@ export default function WaveformEditor({ preview, initialOffset, durationA, onOf
         onMouseLeave={handleMouseUp}
       />
       <div className="waveform-meta">
-        <span>偏移: <b>{offset.toFixed(1)}s</b></span>
-        <span className="waveform-method">{METHOD_LABEL[method] || method}</span>
+        <span>B 起点偏移: <b>{offset.toFixed(1)}s</b></span>
+        <span className="waveform-hint">拖动 B 波形对齐到 A 时间轴</span>
       </div>
       {/* A 测试锚点（drawLane 用 canvas 画，无需 DOM） */}
       <div data-testid="waveform-a" hidden />

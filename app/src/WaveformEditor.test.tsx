@@ -37,6 +37,8 @@ const preview = {
   audio_b_path: '/tmp/b.m4a',
   waveform_a: Array.from({ length: 100 }, (_, i) => 0.5 + 0.5 * Math.sin(i / 5)),
   waveform_b: Array.from({ length: 50 }, (_, i) => 0.5 + 0.5 * Math.cos(i / 5)),
+  duration_a: 10,
+  duration_b: 5,
 };
 
 describe('WaveformEditor', () => {
@@ -62,5 +64,19 @@ describe('WaveformEditor', () => {
     const last = onChange.mock.calls.at(-1)![0] as number;
     // 允许更宽的误差范围以应对 React 更新的异步性
     expect(Math.abs(last - 3.0)).toBeLessThan(0.5);
+  });
+
+  it('B 可拖到 A 起点之前（负 offset）', () => {
+    const onChange = vi.fn();
+    render(<WaveformEditor preview={preview} initialOffset={0} durationA={10} onOffsetChange={onChange} />);
+    const b = screen.getByTestId('waveform-b');
+    // 从 clientX=300(offset=0) 拖到 clientX=0 → -300px = -5s → offset 应 clamp 到 -durationB=-5
+    fireEvent.mouseDown(b, { clientX: 300, clientY: 200 });
+    fireEvent.mouseMove(b, { clientX: 0, clientY: 200 });
+    fireEvent.mouseUp(b);
+    expect(onChange).toHaveBeenCalled();
+    const last = onChange.mock.calls.at(-1)![0] as number;
+    // -300px / (600px/10s) = -5s，clamp 到 [-5, 10] → -5
+    expect(Math.abs(last - (-5))).toBeLessThan(0.5);
   });
 });
