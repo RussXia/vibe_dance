@@ -1,0 +1,23 @@
+engine/engine.spec
+  s_babc8e026502c3::t_99202d8cc51890 16-27
+README.md
+  s_babc8e026502c3::t_2a840435819e3b 139
+engine/pyproject.toml
+  s_babc8e026502c3::t_c80631963935e7 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "b5b0035649ceb431f418249ec5fb3c64858cac98",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
