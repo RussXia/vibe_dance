@@ -79,7 +79,8 @@ def test_track_outputs_none_on_missing_detection(tmp_path):
     frames = [[(100, 100, 50, 80)], [(100, 100, 50, 80)]] + [[] for _ in range(8)]
     try:
         tracker = PersonTracker(
-            reader, 0, (100, 100, 50, 80), params={"lose_threshold": 3},
+            reader, 0, (100, 100, 50, 80),
+            params={"lose_threshold": 3, "enable_csrt_fallback": False},
         )
         tracker._model = _make_fake_model(frames)
         boxes = tracker.track(max_frames=10)
