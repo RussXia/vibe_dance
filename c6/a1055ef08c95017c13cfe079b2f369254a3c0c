@@ -1,0 +1,27 @@
+app/src/WaveformEditor.test.tsx
+  s_babc8e026502c3::t_6458722e4976ed 63-64
+  s_babc8e026502c3::t_8c9fa806958767 56,58,60
+  s_babc8e026502c3::t_0e3694b3f2fa09 28-32
+  s_babc8e026502c3::t_4fe7275c81853e 59
+  s_babc8e026502c3::t_79459be7d9bc16 1-27,33-55,57,61-62,65-66
+app/src/App.css
+  s_babc8e026502c3::t_50a703939ce7b5 331-362
+app/src/WaveformEditor.tsx
+  s_babc8e026502c3::t_69a337915e58d9 1-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "c6a1055ef08c95017c13cfe079b2f369254a3c0c",
+  "prompts": {},
+  "sessions": {
+    "s_babc8e026502c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffa00348-83a2-4498-9986-cc68e9031db0",
+        "model": "ep-07p4u7vn"
+      },
+      "human_author": "zhengyuexia <zhengyuexia@trip.com>"
+    }
+  }
+}
