@@ -19,8 +19,11 @@ def extract_waveform(wav_path: str, bucket_seconds: float = 0.1) -> list[float]:
 
     bucket_seconds: 每个波形桶的时长（默认 0.1s → 10Hz 分辨率）。
     """
+    if not os.path.exists(wav_path):
+        raise ValueError(f"wav 文件不存在: {wav_path}")
     with wave.open(wav_path, "rb") as w:
-        assert w.getnchannels() == 1
+        if w.getnchannels() != 1:
+            raise ValueError(f"wav 应为单声道: {wav_path}")
         sr = w.getframerate()
         data = w.readframes(w.getnframes())
     x = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
@@ -39,6 +42,8 @@ def extract_waveform(wav_path: str, bucket_seconds: float = 0.1) -> list[float]:
 
 def extract_preview_audio(source_path: str, out_path: str, ffmpeg: str | None = None) -> None:
     """把素材（A 或 B）的音轨转成前端可播放的 AAC/m4a（供 Web Audio 试听）。"""
+    if not os.path.exists(source_path):
+        raise ValueError(f"源文件不存在: {source_path}")
     ffmpeg = ffmpeg or find_ffmpeg()
     cmd = [
         ffmpeg, "-y", "-i", source_path,
